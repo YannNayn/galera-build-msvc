@@ -1,10 +1,10 @@
 :: this assumes MinGW/MSYS has been installed in  c:\mingw and curl (curl.haxx.se) is in the path
 set MINGW_INSTOP=c:\mingw
 set msys_bat=%MINGW_INSTOP%\msys\1.0\msys.bat
-set temp_inst=c:\temp_inst\
-if not exist %temp_inst%bin mkdir %temp_inst%bin
-if not exist %temp_inst%lib mkdir %temp_inst%lib
-if not exist %temp_inst%include mkdir %temp_inst%include
+set inst_temp=c:\inst_temp\
+if not exist %inst_temp%bin mkdir %inst_temp%bin
+if not exist %inst_temp%lib mkdir %inst_temp%lib
+if not exist %inst_temp%include mkdir %inst_temp%include
 
 set LIB=%inst_temp%lib;%LIB%
 set INCLUDE=%inst_temp%iinclude;%INCLUDE%
@@ -27,7 +27,7 @@ curl -o %inst_temp%include\semaphore.h http://mirrors.kernel.org/sources.redhat.
 clone https://github.com/YannNayn/check_msvc.git
 pushd check_msvc
 set src_dir=%CD%
-call %msys_bat% -c "cd %src_dir:\=/% && configure --prefix=%temp_inst:\=/% && make && make install"
+call %msys_bat% -c "cd %src_dir:\=/% && configure --prefix=%inst_temp:\=/% && make && make install"
 LIB /DEF:src\.libs\libcheck-0.dll.def /MACHINE:X86 /OUT:%inst_temp%lib\libcheck.lib
 popd
 
