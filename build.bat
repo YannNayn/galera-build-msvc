@@ -1,4 +1,4 @@
-:: this assumes MinGW/MSYS has been installed in  c:\mingw
+:: this assumes MinGW/MSYS has been installed in  c:\mingw and curl (curl.haxx.se) is in the path
 set MINGW_INSTOP=c:\mingw
 set msys_bat=%MINGW_INSTOP%\msys\1.0\msys.bat
 set temp_inst=c:\temp_inst\
@@ -19,6 +19,10 @@ copy /Y msvc_sup\include\*.h %inst_temp%include
 
 curl -o %inst_temp%lib\pthreadVC2.lib http://mirrors.kernel.org/sources.redhat.com/pthreads-win32/dll-latest/lib/x86/pthreadVC2.lib
 curl -o %inst_temp%bin\pthreadVC2.dll http://mirrors.kernel.org/sources.redhat.com/pthreads-win32/dll-latest/dll/x86/pthreadVC2.dll
+
+curl -o %inst_temp%include\pthread.h http://mirrors.kernel.org/sources.redhat.com/pthreads-win32/dll-latest/include/pthread.h
+curl -o %inst_temp%include\sched.h http://mirrors.kernel.org/sources.redhat.com/pthreads-win32/dll-latest/include/sched.h
+curl -o %inst_temp%include\semaphore.h http://mirrors.kernel.org/sources.redhat.com/pthreads-win32/dll-latest/include/semaphore.h
 
 clone https://github.com/YannNayn/check_msvc.git
 pushd check_msvc
