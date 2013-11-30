@@ -49,4 +49,5 @@ scons gcomm
 scons gcs
 scons garb
 popd
+copy /Y galera_msvc\galera_smm.dll %inst_temp%bin
 
