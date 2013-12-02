@@ -59,8 +59,18 @@ set WIX_DUTIL_LIBRARY=%WIX%\SDK\VS2008\lib\x86\dutil
 ::this implies that VS2008 was found when installing WIX
 if exist %WIX%\SDK\VS2008\inc set INCLUDE=%INCLUDE%;%WIX%\SDK\VS2008\inc&goto :done_wx_inc
 if exist %WIX%\SDK\VS2010\inc set INCLUDE=%INCLUDE%;%WIX%\SDK\VS2010\inc&goto :done_wx_inc
-echo Wix Include directory not found ...(w8 for updates ...)
-goto :EOF
+echo Wix Include directory not found ...(w8 for next attempt ...)
+
+::goto :EOF
+if not exist %inst_temp%temp mkdir %inst_temp%temp
+curl -o %inst_temp%temp\wix38-binaries.zip https://wix.codeplex.com/downloads/get/762938
+pushd %inst_temp%temp
+unzip wix38-binaries.zip wix38-binaries
+set WIX=%CD%\wix38-binaries
+set INCLUDE=%INCLUDE%;%WIX%\SDK\inc
+set WIX_WCAUTIL_LIBRARY=%WIX%\SDK\VS2010\lib\x86\wcautil
+set WIX_DUTIL_LIBRARY=%WIX%\SDK\VS2010\lib\x86\dutil
+popd
 :done_wx_inc
 
 if not exist .build\nmake mkdir .build\nmake
