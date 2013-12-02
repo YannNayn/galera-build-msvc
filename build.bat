@@ -60,15 +60,15 @@ set WIX_DUTIL_LIBRARY=%WIX%\SDK\VS2008\lib\x86\dutil
 if exist %WIX%\SDK\VS2008\inc set INCLUDE=%INCLUDE%;%WIX%\SDK\VS2008\inc&goto :done_wx_inc
 if exist %WIX%\SDK\VS2010\inc set INCLUDE=%INCLUDE%;%WIX%\SDK\VS2010\inc&goto :done_wx_inc
 echo Wix Include directory not found ...(w8 for updates ...)
-
 goto :EOF
+:done_wx_inc
 
 if not exist .build\nmake mkdir .build\nmake
 pushd .build\nmake
 set inst_temp_s=%inst_temp:\=/%
 set DEFAULT_TMPDIR="c:\\temp"
 
-:done_wx_inc
+
 cmake -G "Nmake Makefiles"    -Wno-dev -DWITH_WSREP:BOOL=ON -DTMPDIR=%DEFAULT_TMPDIR% -DWIX_WCAUTIL_LIBRARY:FILE=%WIX_WCAUTIL_LIBRARY:\=/% -DWIX_DUTIL_LIBRARY:FILE=%WIX_DUTIL_LIBRARY:\=/%  -DWITH_EMBEDDED_SERVER=1 -DWITH_OQGRAPH:BOOL=FALSE -DWITH_ZLIB:STRING=system -DWITH_SSL:STRING=system -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo  -DCMAKE_INSTALL_PREFIX:PATH=%inst_temp_s% ..\..\mariadb-galera-msvc
 nmake install
 nmake dist
