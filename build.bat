@@ -65,7 +65,7 @@ echo Wix Include directory not found ...(w8 for next attempt ...)
 if not exist %inst_temp%temp mkdir %inst_temp%temp
 curl -o %inst_temp%temp\wix38-binaries.zip https://wix.codeplex.com/downloads/get/762938
 pushd %inst_temp%temp
-unzip wix38-binaries.zip wix38-binaries
+unzip wix38-binaries.zip -d wix38-binaries
 set WIX=%CD%\wix38-binaries
 set INCLUDE=%INCLUDE%;%WIX%\SDK\inc
 set WIX_WCAUTIL_LIBRARY=%WIX%\SDK\VS2010\lib\x86\wcautil
