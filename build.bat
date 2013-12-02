@@ -50,4 +50,21 @@ scons gcs
 scons garb
 popd
 copy /Y galera_msvc\galera_smm.dll %inst_temp%bin
+git clone  https://github.com/YannNayn/mariadb-galera-msvc.git
 
+if not exist .build\nmake mkdir .build\nmake
+pushd .build\nmake
+set inst_temp_s=%inst_temp:\=/%
+set DEFAULT_TMPDIR="c:\\temp"
+::WIX environment variable is the wix (wix.sf.net) install path
+set WIX_WCAUTIL_LIBRARY=%WIX%\SDK\VS2008\lib\x86\wcautil.lib 
+set WIX_DUTIL_LIBRARY=%WIX%\SDK\VS2008\lib\x86\dutil.lib
+cmake -G "Nmake Makefiles"    -Wno-dev -DWITH_WSREP:BOOL=ON -DTMPDIR=%DEFAULT_TMPDIR% -DWIX_WCAUTIL_LIBRARY:FILE=%WIX_WCAUTIL_LIBRARY:\=/% -DWIX_DUTIL_LIBRARY:FILE=%WIX_DUTIL_LIBRARY:\=/%  -DWITH_EMBEDDED_SERVER=1 -DWITH_OQGRAPH:BOOL=FALSE -DWITH_ZLIB:STRING=system -DWITH_SSL:STRING=system -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo  -DCMAKE_INSTALL_PREFIX:PATH=%inst_temp_s% ..\..\mariadb-galera-msvc
+nmake install
+copy /Y Scripts\*.sh %inst_temp%\bin
+copy /Y Scripts\*.sql %inst_temp%\bin
+copy /Y Scripts\*.pl %inst_temp%\bin
+popd
+
+
+:: have a sh in the path(either cygwin or mingw as above )
