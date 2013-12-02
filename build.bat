@@ -49,4 +49,44 @@ scons gcomm
 scons gcs
 scons garb
 popd
+copy /Y galera_msvc\galera_smm.dll %inst_temp%bin
+git clone  https://github.com/YannNayn/mariadb-galera-msvc.git
 
+::WIX environment variable is the wix (wix.sf.net) install path
+
+set WIX_WCAUTIL_LIBRARY=%WIX%\SDK\VS2008\lib\x86\wcautil
+set WIX_DUTIL_LIBRARY=%WIX%\SDK\VS2008\lib\x86\dutil
+::this implies that VS2008 was found when installing WIX
+if exist %WIX%\SDK\VS2008\inc set INCLUDE=%INCLUDE%;%WIX%\SDK\VS2008\inc&goto :done_wx_inc
+if exist %WIX%\SDK\VS2010\inc set INCLUDE=%INCLUDE%;%WIX%\SDK\VS2010\inc&goto :done_wx_inc
+echo Wix Include directory not found ...(w8 for next attempt ...)
+
+::goto :EOF
+if not exist %inst_temp%temp mkdir %inst_temp%temp
+curl -o %inst_temp%temp\wix38-binaries.zip https://wix.codeplex.com/downloads/get/762938
+pushd %inst_temp%temp
+unzip wix38-binaries.zip -d wix38-binaries
+set WIX=%CD%\wix38-binaries
+set INCLUDE=%INCLUDE%;%WIX%\SDK\inc
+set WIX_WCAUTIL_LIBRARY=%WIX%\SDK\VS2010\lib\x86\wcautil
+set WIX_DUTIL_LIBRARY=%WIX%\SDK\VS2010\lib\x86\dutil
+popd
+:done_wx_inc
+
+if not exist .build\nmake mkdir .build\nmake
+pushd .build\nmake
+set inst_temp_s=%inst_temp:\=/%
+set DEFAULT_TMPDIR="c:\\temp"
+
+
+cmake -G "Nmake Makefiles"    -Wno-dev -DWITH_WSREP:BOOL=ON -DTMPDIR=%DEFAULT_TMPDIR% -DWIX_WCAUTIL_LIBRARY:FILE=%WIX_WCAUTIL_LIBRARY:\=/% -DWIX_DUTIL_LIBRARY:FILE=%WIX_DUTIL_LIBRARY:\=/%  -DWITH_EMBEDDED_SERVER=1 -DWITH_OQGRAPH:BOOL=FALSE -DWITH_ZLIB:STRING=system -DWITH_SSL:STRING=system -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo  -DCMAKE_INSTALL_PREFIX:PATH=%inst_temp_s% ..\..\mariadb-galera-msvc
+nmake install
+nmake dist
+
+copy /Y Scripts\*.sh %inst_temp%\bin
+copy /Y Scripts\*.sql %inst_temp%\bin
+copy /Y Scripts\*.pl %inst_temp%\bin
+popd
+
+
+:: have a sh in the path(either cygwin or mingw as above )
