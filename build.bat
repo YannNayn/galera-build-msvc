@@ -1,3 +1,5 @@
+set OLD_INC=%INCLUDE%
+set OLD_LIB=%LIB%
 :: this assumes MinGW/MSYS has been installed in  c:\mingw and curl (curl.haxx.se) is in the path
 set MINGW_INSTOP=c:\mingw
 set msys_bat=%MINGW_INSTOP%\msys\1.0\msys.bat
@@ -23,6 +25,17 @@ curl -o %inst_temp%bin\pthreadVC2.dll http://mirrors.kernel.org/sources.redhat.c
 curl -o %inst_temp%include\pthread.h http://mirrors.kernel.org/sources.redhat.com/pthreads-win32/dll-latest/include/pthread.h
 curl -o %inst_temp%include\sched.h http://mirrors.kernel.org/sources.redhat.com/pthreads-win32/dll-latest/include/sched.h
 curl -o %inst_temp%include\semaphore.h http://mirrors.kernel.org/sources.redhat.com/pthreads-win32/dll-latest/include/semaphore.h
+
+clone https://github.com/YannNayn/libevent.git
+pushd libevent
+nmake -f Makefile.nmake 
+popd
+echo.>%inst_temp%lib\event.lib
+copy /Y libvent\libevent.lib %inst_temp%lib
+if not exist %inst_temp%include\libevent mkdir %inst_temp%include\libevent
+xcopy /Y /F /S libevent\include\*.h %inst_temp%include\libevent
+
+
 
 clone https://github.com/YannNayn/check_msvc.git
 pushd check_msvc
@@ -67,7 +80,8 @@ curl -o %inst_temp%temp\wix38-binaries.zip https://wix.codeplex.com/downloads/ge
 pushd %inst_temp%temp
 unzip wix38-binaries.zip -d wix38-binaries
 set WIX=%CD%\wix38-binaries
-set INCLUDE=%INCLUDE%;%WIX%\SDK\inc
+
+set INC=%INCLUDE%;%WIX%\SDK\inc
 set WIX_WCAUTIL_LIBRARY=%WIX%\SDK\VS2010\lib\x86\wcautil
 set WIX_DUTIL_LIBRARY=%WIX%\SDK\VS2010\lib\x86\dutil
 popd
@@ -78,8 +92,9 @@ pushd .build\nmake
 set inst_temp_s=%inst_temp:\=/%
 set DEFAULT_TMPDIR="c:\\temp"
 
-
-cmake -G "Nmake Makefiles"    -Wno-dev -DWITH_WSREP:BOOL=ON -DTMPDIR=%DEFAULT_TMPDIR% -DWIX_WCAUTIL_LIBRARY:FILE=%WIX_WCAUTIL_LIBRARY:\=/% -DWIX_DUTIL_LIBRARY:FILE=%WIX_DUTIL_LIBRARY:\=/%  -DWITH_EMBEDDED_SERVER=1 -DWITH_OQGRAPH:BOOL=FALSE -DWITH_ZLIB:STRING=system -DWITH_SSL:STRING=system -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo  -DCMAKE_INSTALL_PREFIX:PATH=%inst_temp_s% ..\..\mariadb-galera-msvc
+set EVENT_LIBEARY=%inst_temp%lib\libevent.lib
+set INCLUDE=%INCLUDE%;%inst_temp%include\libevent
+cmake -G "Nmake Makefiles"    -Wno-dev -DEVENT_LIBEARY:FILEPATH=%EVENT_LIBEARY:\=/% -DWITH_WSREP:BOOL=ON -DTMPDIR=%DEFAULT_TMPDIR% -DWIX_WCAUTIL_LIBRARY:FILE=%WIX_WCAUTIL_LIBRARY:\=/% -DWIX_DUTIL_LIBRARY:FILE=%WIX_DUTIL_LIBRARY:\=/%  -DWITH_EMBEDDED_SERVER=1 -DWITH_OQGRAPH:BOOL=FALSE -DWITH_ZLIB:STRING=system -DWITH_SSL:STRING=system -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo  -DCMAKE_INSTALL_PREFIX:PATH=%inst_temp_s% ..\..\mariadb-galera-msvc
 nmake install
 nmake dist
 
@@ -90,3 +105,5 @@ popd
 
 
 :: have a sh in the path(either cygwin or mingw as above )
+set INCLUDE=%OLD_INC%
+set LIB=%OLD_LIB%
